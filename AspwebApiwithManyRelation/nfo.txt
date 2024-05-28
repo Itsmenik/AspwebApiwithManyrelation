@@ -1,0 +1,90 @@
+﻿First create the project with the web api core and then we have to manually give the
+--> db connection string  in the application.Development.json 
+
+--> and then we have to install some package that -> Microsoft.Entityframework 
+-->Microsoft.Entityframework.Core.SqlServer 
+=================================================================af
+after that create a folder data and then in that 
+create a folder entity and then under that folder create the database name 
+Customer.cs (by defualt put the name with the tble name)   
+
+and under that we have to define the model  ---> 
+
+
+
+and the below that we are going to create the navigation 
+property that define the relation b.w 
+the two classes  
+ 
+
+----------------------------------------------------------------------------------------->
+Now we have to create the Dbcontext class (DbContext manages the connection to the database. It handles the creation, opening, and closing of connections, which helps manage the underlying resources efficiently.)
+
+after inherit from the data base don't forget to inherit from the (DbContext) classe 
+then add a ---> (constructor) 
+
+(this constructor take some args that is type of the class ) 
+
+---> and the we hve to register the class that is related to our table 
+means that define our table  
+ 
+using Microsoft.EntityFrameworkCore;
+
+namespace AspwebApiwithManyRelation.Data.Entities
+{
+    public class CustomerDbContext:DbContext 
+        //Dbcontext is primary class that is responsible for the db interaction 
+    {
+        public CustomerDbContext(DbContextOptions<CustomerDbContext> context) : base(context)
+        //base(context) meaning we are passing the args to the parent class  
+        //DbContextOptions<which is type of the current class  
+        {
+
+
+        }
+        public DbSet<Customer> Customers { get; set; } 
+        public DbSet<CustomerAddress> CustomersAddresses { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        { //we are using the EF core  fluent api so, we have to define the foreign key and one->many relationship that we are
+          //using in the tble 
+
+            modelBuilder.Entity<CustomerAddress>()    // because the customer contain the foreign key relation 
+            .HasOne(_ => _.Customer) // One cutomer address contain only one customer (and the customer (name) coming from the model where we define the customer
+            .WithMany(_ => _.Addresses) //Similary one customer has one adress and many address also coming from (Model)  
+            .HasForeignKey(_ => _.CutomerID); // it has foreign key 
+            
+            }
+
+    }
+}
+ 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+
+Now the dbcontext is compeleted now  
+(We have to register (injected) our db context file in the program.cs file ) 
+
+
+
+builder.Services.AddDbContext<CustomerDbContext>( option =>
+    {
+        option.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection"));
+    }); 
+================================================================================= 
+after involking the dbcontext into the prg file   
+with the help method we are going to fetch all the rescord from th 
+customer table   
+
+In the tble we are inseting the two address for the same person whose customer id 1 
+
+===================================================================================== 
+(Controller) 
+from where we are going to show the data
+
+ 
+
+
+
+
+
+
